@@ -9,6 +9,7 @@ class FundaItem(scrapy.Item):
     housenumber = scrapy.Field()
     postal_code = scrapy.Field()
     price = scrapy.Field()  # Listing price ("Vraagprijs")
+    sold_on = scrapy.Field()
     year_built = scrapy.Field()  # Year built ("Bouwjaar")
     area = scrapy.Field()  # Built area ("Woonoppervlakte")
     rooms = scrapy.Field()  # Number of rooms
