@@ -41,8 +41,9 @@ class FundaSpiderSold(scrapy.Spider):
         title = response.xpath('//title/text()').extract()[0]
         address = re.findall(r'te koop: (.*) \d{4}', title)[0].replace(' ', '')
         street = re.search('[a-zA-Z]+', address).group(0)
-        housenumber = re.search('[0-9]+', address).group(0)
-        housenumber_add = re.search('^[0-9]+[a-zA-Z]+', address).group(0)
+        housenumber = re.search(r'\d+', address).group(0)
+        # ^[0-9]+[a-zA-Z]
+        housenumber_add = re.search(r'\d[a-zA-Z]+', address).group(0)
         postal_code = re.search(r'\d{4} [A-Z]{2}', title).group(0)
         city = re.search(r'\d{4} [A-Z]{2} \w+', address).group(0).split()[2]
         area_dd = response.xpath("//span[contains@title, 'wonen')]/following-sibling::span[1]/text()").extract()[0]
