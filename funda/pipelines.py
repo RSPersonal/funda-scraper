@@ -5,6 +5,7 @@ from decouple import config
 
 class FundaPipeline(object):
     """
+    Process pipeline for scraped items to Postgresql database
     """
 
     def __init__(self):
@@ -19,13 +20,25 @@ class FundaPipeline(object):
         self.cur = self.connection.cursor()
 
     def close_spider(self, spider):
+        """
+        Closes connection to database
+        @param spider:
+        @return: None
+        """
         self.cur.close()
         self.connection.close()
 
     def process_item(self, item, spider):
-        exists_in_db = self.cur.execute("SELECT street, zipcode from public.website_projects_scrapypropertymodel WHERE housenumber = 7 AND  zipcode = '8043NR'")
-        print(exists_in_db)
-        if not exists_in_db:
+        """ First check if scraped property already exists in Database, othwise add it to database.
+        Returns item after processing.
+        @param item:
+        @param spider:
+        @return:
+        """
+        self.cur.execute("SELECT street, zipcode from public.website_projects_scrapypropertymodel WHERE housenumber = %s AND  zipcode = %s", (item['housenumber'], item['postal_code']))
+        exists_in_db = self.cur.fetchone()
+        save_to_db = os.getenv("SAVE_SCRAPED_DATA_TO_DB", config("SAVE_SCRAPED_DATA_TO_DB"))
+        if not exists_in_db and save_to_db:
             self.cur.execute("insert into website_projects_scrapypropertymodel(street, housenumber, zipcode, city, woon_oppervlak, type_of_property, ask_price, housenumber_add, municipality)values(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (item['street'], item['housenumber'], item['postal_code'], item['city'], item['area'], item['property_type'], item['price'], "", ""))
             self.connection.commit()
         return item
