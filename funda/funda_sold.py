@@ -15,12 +15,12 @@ def start_spider(place):
 
 class FundaSpiderSold(scrapy.Spider):
     name = 'funda_sold'
-    allowed_domains = ['funda.nl']
+    allowed_domains = ["funda.nl"]
 
     def __init__(self, place, **kwargs):
         super().__init__(**kwargs)
-        self.start_urls = ["http://www.funda.nl/koop/verkocht/%s/p%s/" % (place, page_number) for page_number in range(1, 2)]
-        self.base_url = "http://www.funda.nl/koop/verkocht/%s/" % place
+        self.start_urls = ["https://www.funda.nl/koop/verkocht/%s/p%s/" % (place, page_number) for page_number in range(1, 2)]
+        self.base_url = "https://www.funda.nl/koop/verkocht/%s/" % place
         self.le1 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}' % self.base_url)
         self.le2 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}.*/kenmerken/' % self.base_url)
 
@@ -28,7 +28,6 @@ class FundaSpiderSold(scrapy.Spider):
         links = self.le1.extract_links(response)
         slash_count = self.base_url.count('/') + 1  # Controls the depth of the links to be scraped
         for link in links:
-            print(link.url)
             if link.url.count('/') == slash_count and link.url.endswith('/'):
                 item = FundaItem()
                 item['url'] = link.url
