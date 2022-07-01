@@ -28,6 +28,27 @@ class FundaPipeline(object):
         self.cur.close()
         self.connection.close()
 
+    def check_if_exists(self, housenumber: int, zipcode: str):
+        """
+        Checks if item is in database and returns boolean
+        @param housenumber:
+        @param zipcode:
+        @return: bool true or false
+        """
+        exists_query = """
+        SELECT EXISTS (
+        SELECT 1
+        FROM 
+        public.website_projects_scrapypropertymodel
+        WHERE housenumber = %s
+        AND
+        zipcode = %s
+        )
+        """
+        execute_search_query = self.cur.execute(exists_query, (housenumber, zipcode))
+        exists_in_db = self.cur.fetchone()
+        return exists_in_db
+
     def process_item(self, item, spider):
         """ First check if scraped property already exists in Database, othwise add it to database.
         Returns item after processing.
@@ -35,10 +56,9 @@ class FundaPipeline(object):
         @param spider:
         @return:
         """
-        self.cur.execute("SELECT street, zipcode from public.website_projects_scrapypropertymodel WHERE housenumber = %s AND  zipcode = %s", (item['housenumber'], item['postal_code']))
-        exists_in_db = self.cur.fetchone()
         save_to_db = os.getenv("SAVE_SCRAPED_DATA_TO_DB", config("SAVE_SCRAPED_DATA_TO_DB"))
-        if not exists_in_db and save_to_db:
+        check_if_in_database = self.check_if_exists(item['housenumber'], item['postal_code'])
+        if not check_if_in_database and save_to_db:
             self.cur.execute("insert into website_projects_scrapypropertymodel(street, housenumber, zipcode, city, woon_oppervlak, type_of_property, ask_price, housenumber_add, municipality)values(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (item['street'], item['housenumber'], item['postal_code'], item['city'], item['area'], item['property_type'], item['price'], "", ""))
             self.connection.commit()
         return item

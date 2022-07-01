@@ -43,6 +43,7 @@ class FundaSpider(scrapy.Spider):
         address = re.findall(r'te koop: (.*) \d{4}', title)[0].replace(' ', '')
         price_dd = response.xpath('.//strong[@class="object-header__price"]/text()').extract()[0]
         price = ''.join(re.findall(r'\d+', price_dd)).replace('.', '')
+        # TODO Extract also the housenumber add
         # year_built_dd = response.xpath("//dt[contains(.,'Bouwjaar')]/following-sibling::dd[1]/text()").extract()[0]
         # year_built = self.construction_year(response)
         area_dd = response.xpath("//span[contains(@title,'wonen')]/following-sibling::span[1]/text()").extract()[0]
