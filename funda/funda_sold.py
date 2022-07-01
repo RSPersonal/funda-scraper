@@ -4,6 +4,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 from items import FundaItem
+from funda_helpers import get_month_in_digit_string
 
 
 def start_spider(place):
@@ -40,26 +41,29 @@ class FundaSpiderSold(scrapy.Spider):
     def parse_dir_contents(self, response):
         new_item = response.meta['item']
         title = response.xpath('//title/text()').extract()[0]
-        address = re.findall(r'te koop: (.*) \d{4}', title)[0].replace(' ', '')
+        address = re.findall(r'Verkocht: (.*) \d{4}', title)[0].replace(' ', '')
         street = re.search('[a-zA-Z]+', address).group(0)
         housenumber = re.search(r'\d+', address).group(0)
-        housenumber_add = re.search(r'\d[a-zA-Z]+', address).group(0)
+        housenumber_add = re.search(r'\d[a-zA-Z]+', address)
         postal_code = re.search(r'\d{4} [A-Z]{2}', title).group(0)
-        city = re.search(r'\d{4} [A-Z]{2} \w+', address).group(0).split()[2]
-        area_dd = response.xpath("//span[contains@title, 'wonen')]/following-sibling::span[1]/text()").extract()[0]
+        city = re.search(r'\d{4} [A-Z]{2} \w+', title).group(0).split()[2]
+        area_dd = response.xpath("//span[contains(@title, 'wonen')]/following-sibling::span[1]/text()").extract()[0]
+
         area = re.findall(r'\d+', area_dd)[0]
-        price_dd = response.xpath('.//strong[@class="object-header__price"]/text()').extract()[0]
+        price_dd = response.xpath('.//strong[@class="object-header__price--historic"]/text()').extract()[0]
         price = ''.join(re.findall(r'\d+', price_dd)).replace('.', '')
-        year_sold_dd = response.xpath("//dt[contains(.,'Verkoopdatum')]/following-sibling:dd[0]/text()").extract()[0]
-        print(year_sold_dd)
+        year_sold_dd = response.xpath("//dt[contains(.,'Verkoopdatum')]/following-sibling::dd[1]/text()").extract()[0]
+        year_sold_dirty = re.search(r'[a-z]+', year_sold_dd).group(0)
+        year_sold_clean = year_sold_dd.replace(year_sold_dirty, get_month_in_digit_string(year_sold_dirty))
         new_item['street'] = street
         new_item['housenumber'] = housenumber
-        new_item['housenumber_add'] = housenumber_add
+        if housenumber_add:
+            new_item['housenumber_add'] = housenumber_add.group(0)
         new_item['postal_code'] = postal_code
         new_item['city'] = city
         new_item['area'] = area
         new_item['price'] = price
-        # new_item['date_sold'] = date_sold
+        new_item['date_sold'] = year_sold_clean
 
 
 if __name__ == '__main__':
