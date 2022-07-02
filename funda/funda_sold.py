@@ -64,6 +64,7 @@ class FundaSpiderSold(scrapy.Spider):
         new_item['area'] = area
         new_item['price'] = price
         new_item['date_sold'] = year_sold_clean
+        new_item['status'] = 'Verkocht'
 
 
 if __name__ == '__main__':

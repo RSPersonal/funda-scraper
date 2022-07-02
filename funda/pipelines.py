@@ -58,7 +58,7 @@ class FundaPipeline(object):
         """
         save_to_db = os.getenv("SAVE_SCRAPED_DATA_TO_DB", config("SAVE_SCRAPED_DATA_TO_DB"))
         check_if_in_database = self.check_if_exists(item['housenumber'], item['postal_code'])
-        if not check_if_in_database and save_to_db:
-            self.cur.execute("insert into website_projects_scrapypropertymodel(street, housenumber, zipcode, city, woon_oppervlak, type_of_property, ask_price, housenumber_add, municipality)values(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (item['street'], item['housenumber'], item['postal_code'], item['city'], item['area'], item['property_type'], item['price'], "", ""))
+        if not check_if_in_database[0] and save_to_db == 'True':
+            self.cur.execute("insert into website_projects_scrapypropertymodel(street, housenumber, zipcode, city, woon_oppervlak, type_of_property, ask_price, housenumber_add, municipality, status)values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (item['street'], item['housenumber'], item['postal_code'], item['city'], item['area'], item['property_type'], item['price'], item['housenumber_add'] if 'housenumber_add' in item else "", "", item['status']))
             self.connection.commit()
         return item
