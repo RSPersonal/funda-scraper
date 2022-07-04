@@ -20,7 +20,7 @@ class FundaSpiderSold(scrapy.Spider):
 
     def __init__(self, place, **kwargs):
         super().__init__(**kwargs)
-        self.start_urls = ["https://www.funda.nl/koop/verkocht/%s/p%s/" % (place, page_number) for page_number in range(1, 2)]
+        self.start_urls = ["https://www.funda.nl/koop/verkocht/%s/sorteer-afmelddatum-af/p%s/" % (place, page_number) for page_number in range(1, 2)]
         self.base_url = "https://www.funda.nl/koop/verkocht/%s/" % place
         self.le1 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}' % self.base_url)
         self.le2 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}.*/kenmerken/' % self.base_url)
@@ -48,8 +48,13 @@ class FundaSpiderSold(scrapy.Spider):
         postal_code = re.search(r'\d{4} [A-Z]{2}', title).group(0)
         city = re.search(r'\d{4} [A-Z]{2} \w+', title).group(0).split()[2]
         area_dd = response.xpath("//span[contains(@title, 'wonen')]/following-sibling::span[1]/text()").extract()[0]
-
         area = re.findall(r'\d+', area_dd)[0]
+        try:
+            plot_size_dd = response.xpath("//span[contains(@title, 'perceel')]/following-sibling::span[1]/text()").extract()[0]
+            plot_size = re.search(r'\d+', plot_size_dd).group(0)
+        except IndexError as e:
+            plot_size = ''
+            pass
         price_dd = response.xpath('.//strong[@class="object-header__price--historic"]/text()').extract()[0]
         price = ''.join(re.findall(r'\d+', price_dd)).replace('.', '')
         year_sold_dd = response.xpath("//dt[contains(.,'Verkoopdatum')]/following-sibling::dd[1]/text()").extract()[0]
@@ -61,6 +66,8 @@ class FundaSpiderSold(scrapy.Spider):
         new_item['postal_code'] = postal_code
         new_item['city'] = city
         new_item['area'] = area
+        if plot_size:
+            new_item['plot_size'] = plot_size
         new_item['price'] = price
         new_item['year_sold'] = year_sold_clean
         new_item['status'] = 'Verkocht'
