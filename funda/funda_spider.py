@@ -24,6 +24,11 @@ class FundaSpider(scrapy.Spider):
         self.le1 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}' % self.base_url)
 
     def parse(self, response, **kwargs):
+        """
+        @param response:
+        @param kwargs:
+        @return: callback to parse details from item
+        """
         links = self.le1.extract_links(response)
         for link in links:
             if link.url.count('/') == 6 and link.url.endswith('/'):
@@ -37,6 +42,7 @@ class FundaSpider(scrapy.Spider):
 
     def parse_dir_contents(self, response):
         """
+        @rtype: object
         @param response:
         @return: processed item for pipeline
         """
@@ -65,7 +71,7 @@ class FundaSpider(scrapy.Spider):
         new_item['status'] = "Te koop"
         new_item['area'] = area
 
-        # TODO Expand datapoints
+        # TODO Expand data-points
         # new_item['year_built'] = year_built
         # year_built_dd = response.xpath("//dt[contains(.,'Bouwjaar')]/following-sibling::dd[1]/text()").extract()[0]
         # year_built = self.construction_year(response)
@@ -76,21 +82,21 @@ class FundaSpider(scrapy.Spider):
         # new_item['bedrooms'] = bedrooms
         yield new_item
 
-    def construction_year(self, response):
-        try:
-            # Some have a single bouwjaar
-            singleYear = response.xpath("//dt[text()='Bouwjaar']/following-sibling::dd/span/text()").extract()
-            # Some have a period
-            period = response.xpath("//dt[text()='Bouwperiode']/following-sibling::dd/span/text()").extract()
-            if len(singleYear) > 0:
-                # Some are built before 1906 (earliest date that Funda will let you specify)
-                return re.findall(r'\d{4}', singleYear[0])[0]
-            elif len(period) > 0:
-                return re.findall(r'$\d{4}', period[0])[0]
-            else:
-                return 'unknown'
-        except:
-            return "Failed to parse"
+    # def construction_year(self, response):
+    #     try:
+    #         # Some have a single bouwjaar
+    #         singleYear = response.xpath("//dt[text()='Bouwjaar']/following-sibling::dd/span/text()").extract()
+    #         # Some have a period
+    #         period = response.xpath("//dt[text()='Bouwperiode']/following-sibling::dd/span/text()").extract()
+    #         if len(singleYear) > 0:
+    #             # Some are built before 1906 (the earliest date that Funda will let you specify)
+    #             return re.findall(r'\d{4}', singleYear[0])[0]
+    #         elif len(period) > 0:
+    #             return re.findall(r'$\d{4}', period[0])[0]
+    #         else:
+    #             return 'unknown'
+    #     except:
+    #         return "Failed to parse"
 
 
 if __name__ == '__main__':

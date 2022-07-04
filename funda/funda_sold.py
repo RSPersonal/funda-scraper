@@ -4,7 +4,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 from items import FundaItem
-from funda_helpers import get_month_in_digit_string
+from funda_helpers import transform_month_in_digit_string, transform_date_to_database_date_format
 
 
 def start_spider(place):
@@ -53,8 +53,7 @@ class FundaSpiderSold(scrapy.Spider):
         price_dd = response.xpath('.//strong[@class="object-header__price--historic"]/text()').extract()[0]
         price = ''.join(re.findall(r'\d+', price_dd)).replace('.', '')
         year_sold_dd = response.xpath("//dt[contains(.,'Verkoopdatum')]/following-sibling::dd[1]/text()").extract()[0]
-        year_sold_dirty = re.search(r'[a-z]+', year_sold_dd).group(0)
-        year_sold_clean = year_sold_dd.replace(year_sold_dirty, get_month_in_digit_string(year_sold_dirty))
+        year_sold_clean = transform_date_to_database_date_format(year_sold_dd)
         new_item['street'] = street
         new_item['housenumber'] = housenumber
         if housenumber_add:
@@ -63,8 +62,9 @@ class FundaSpiderSold(scrapy.Spider):
         new_item['city'] = city
         new_item['area'] = area
         new_item['price'] = price
-        new_item['date_sold'] = year_sold_clean
+        new_item['year_sold'] = year_sold_clean
         new_item['status'] = 'Verkocht'
+        yield new_item
 
 
 if __name__ == '__main__':
