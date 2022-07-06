@@ -40,7 +40,7 @@ def append_zero_to_single_digit_days_in_date(input_month_string: str):
 
 def transform_date_to_database_date_format(dirty_date_input: str):
     """
-    Returns correct date format for database entry from scraped date example = 13-05-2022
+    Returns correct date format for database entry from scraped date example = 13 maart 2022
     @param dirty_date_input: string
     @return: New date format example: 2022-05-13
     """

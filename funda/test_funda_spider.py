@@ -18,7 +18,7 @@ class TestGetMonthInDigit(unittest.TestCase):
         self.assertEqual(transform_month_in_digit_string("december"), "12")
 
     def test_construct_clean_date_format(self):
-        self.assertEqual(transform_date_to_database_date_format("15 03 2022"), "2022-03-15")
+        self.assertEqual(transform_date_to_database_date_format("15 maart 2022"), "2022-03-15")
 
 
 if __name__ == '__main__':

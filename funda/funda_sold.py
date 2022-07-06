@@ -20,7 +20,7 @@ class FundaSpiderSold(scrapy.Spider):
 
     def __init__(self, place, **kwargs):
         super().__init__(**kwargs)
-        self.start_urls = ["https://www.funda.nl/koop/verkocht/%s/sorteer-afmelddatum-af/p%s/" % (place, page_number) for page_number in range(1, 2)]
+        self.start_urls = ["https://www.funda.nl/koop/verkocht/%s/p%s/" % (place, page_number) for page_number in range(1,1001)]
         self.base_url = "https://www.funda.nl/koop/verkocht/%s/" % place
         self.le1 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}' % self.base_url)
         self.le2 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}.*/kenmerken/' % self.base_url)
