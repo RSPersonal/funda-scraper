@@ -19,6 +19,7 @@ class TestGetMonthInDigit(unittest.TestCase):
 
     def test_construct_clean_date_format(self):
         self.assertEqual(transform_date_to_database_date_format("15 maart 2022"), "2022-03-15")
+        self.assertEqual(transform_date_to_database_date_format("5 mei 2022"), "2022-05-05")
 
 
 if __name__ == '__main__':

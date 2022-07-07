@@ -27,15 +27,15 @@ def transform_month_in_digit_string(input_user_string: str):
         return False
 
 
-def append_zero_to_single_digit_days_in_date(input_month_string: str):
+def append_zero_to_single_digit_days_in_date(input_days_string: str):
     """
-    @param input_month_string:
+    @param input_days_string:
     @return:
     """
-    if input_month_string and 0 < int(input_month_string) < 10:
-        return f"0{input_month_string}"
+    if input_days_string and 0 < int(input_days_string) < 10:
+        return f"0{input_days_string}"
     else:
-        return input_month_string
+        return input_days_string
 
 
 def transform_date_to_database_date_format(dirty_date_input: str):
@@ -44,9 +44,15 @@ def transform_date_to_database_date_format(dirty_date_input: str):
     @param dirty_date_input: string
     @return: New date format example: 2022-05-13
     """
-    find_dirty_year_sold = re.search(r'[a-z]+', dirty_date_input).group(0)
-    find_dirty_month = re.search(r'\d+', dirty_date_input).group(0)
-    dirty_date_input = dirty_date_input.replace(find_dirty_year_sold, transform_month_in_digit_string(find_dirty_year_sold))
-    year_month_clean = dirty_date_input.replace(find_dirty_month, append_zero_to_single_digit_days_in_date(find_dirty_month))
-    splitted_clean_date = year_month_clean.split(' ')
-    return f"{splitted_clean_date[2]}-{splitted_clean_date[1]}-{splitted_clean_date[0]}"
+    splitted_dirty_date = dirty_date_input.split(' ')
+    clean_year = splitted_dirty_date[2]
+    clean_date = [clean_year]
+    month_clean = transform_month_in_digit_string(splitted_dirty_date[1])
+    clean_date.append(month_clean)
+    days_clean = append_zero_to_single_digit_days_in_date(splitted_dirty_date[0])
+    clean_date.append(days_clean)
+    return f"{clean_date[0]}-{clean_date[1]}-{clean_date[2]}"
+
+
+if __name__ == '__main__':
+    print(transform_date_to_database_date_format("15 mei 2022"))

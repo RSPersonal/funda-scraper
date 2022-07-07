@@ -61,4 +61,5 @@ class FundaPipeline(object):
         if not check_if_in_database[0] and save_to_db == 'True':
             self.cur.execute("insert into website_projects_scrapypropertymodel(street, housenumber, zipcode, city, woon_oppervlak, type_of_property, ask_price, housenumber_add, municipality, status, date_sold, perceel_oppervlak)values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (item['street'], item['housenumber'], item['postal_code'], item['city'], item['area'], item['property_type'], item['price'], item['housenumber_add'] if 'housenumber_add' in item else "", "", item['status'], item['year_sold'], item['plot_size'] if 'plot_size' in item else 0))
             self.connection.commit()
+            print("\n Saved to database")
         return item

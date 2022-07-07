@@ -4,7 +4,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 from items import FundaItem
-from funda_helpers import transform_month_in_digit_string, transform_date_to_database_date_format
+from funda_helpers import transform_date_to_database_date_format
 
 
 def start_spider(place):
@@ -20,7 +20,7 @@ class FundaSpiderSold(scrapy.Spider):
 
     def __init__(self, place, **kwargs):
         super().__init__(**kwargs)
-        self.start_urls = ["https://www.funda.nl/koop/verkocht/%s/p%s/" % (place, page_number) for page_number in range(1, 6)]
+        self.start_urls = ["https://www.funda.nl/koop/verkocht/%s/p%s/" % (place, page_number) for page_number in range(1, 50)]
         self.base_url = "https://www.funda.nl/koop/verkocht/%s/" % place
         self.le1 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}' % self.base_url)
         self.le2 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}.*/kenmerken/' % self.base_url)
@@ -45,7 +45,11 @@ class FundaSpiderSold(scrapy.Spider):
         street = re.search('[a-zA-Z]+', address).group(0)
         housenumber = re.search(r'\d+', address).group(0)
         housenumber_add = re.search(r'\d[a-zA-Z]+', address)
-        postal_code = re.search(r'\d{4} [A-Z]{2}', title).group(0)
+        try:
+            postal_code = re.search(r'\d{4} [A-Z]{2}', title).group(0)
+        except AttributeError as e:
+            print("\n Property has no postal code, probably newly built and has no postal code yed")
+            pass
         city = re.search(r'\d{4} [A-Z]{2} \w+', title).group(0).split()[2]
         area_dd = response.xpath("//span[contains(@title, 'wonen')]/following-sibling::span[1]/text()").extract()[0]
         area = re.findall(r'\d+', area_dd)[0]
