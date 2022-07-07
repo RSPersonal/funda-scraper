@@ -1,4 +1,6 @@
 import re
+import sys
+import getopt
 import scrapy
 from scrapy.linkextractors import LinkExtractor
 from scrapy.crawler import CrawlerProcess
@@ -7,10 +9,35 @@ from items import FundaItem
 from funda_helpers import transform_date_to_database_date_format
 
 
-def start_spider(place):
+def main(argv):
+    """
+    @param argv: -p = place
+    @return: starts spider with user input or returns error
+    """
+    argument_list = sys.argv[1:]
+    options = "p:"
+    long_options = ["Place"]
+
+    try:
+        arguments, values = getopt.getopt(argument_list, options, long_options)
+        for currentArgument, currentValue in arguments:
+            if currentArgument in ('-p', '--Place'):
+                start_spider(currentValue)
+    except getopt.error as err:
+        print(str(err))
+
+
+def start_spider(place: str):
+    """
+    Starts spider
+    @param place: str
+    @return: None
+    """
     settings = get_project_settings()
     process = CrawlerProcess(settings)
     process.crawl(FundaSpiderSold, place)
+    if "twisted.internet.reactor" in sys.modules:
+        del sys.modules["twisted.internet.reactor"]
     process.start()
 
 
@@ -20,7 +47,8 @@ class FundaSpiderSold(scrapy.Spider):
 
     def __init__(self, place, **kwargs):
         super().__init__(**kwargs)
-        self.start_urls = ["https://www.funda.nl/koop/verkocht/%s/p%s/" % (place, page_number) for page_number in range(1, 50)]
+        self.start_urls = ["https://www.funda.nl/koop/verkocht/%s/p%s/" % (place, page_number) for page_number in
+                           range(1, 50)]
         self.base_url = "https://www.funda.nl/koop/verkocht/%s/" % place
         self.le1 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}' % self.base_url)
         self.le2 = LinkExtractor(allow=r'%s+(huis|appartement)-\d{8}.*/kenmerken/' % self.base_url)
@@ -54,7 +82,8 @@ class FundaSpiderSold(scrapy.Spider):
         area_dd = response.xpath("//span[contains(@title, 'wonen')]/following-sibling::span[1]/text()").extract()[0]
         area = re.findall(r'\d+', area_dd)[0]
         try:
-            plot_size_dd = response.xpath("//span[contains(@title, 'perceel')]/following-sibling::span[1]/text()").extract()[0]
+            plot_size_dd = \
+            response.xpath("//span[contains(@title, 'perceel')]/following-sibling::span[1]/text()").extract()[0]
             plot_size = re.search(r'\d+', plot_size_dd).group(0)
         except IndexError as e:
             plot_size = ''
@@ -72,11 +101,14 @@ class FundaSpiderSold(scrapy.Spider):
         new_item['area'] = area
         if plot_size:
             new_item['plot_size'] = plot_size
-        new_item['price'] = price
+        if price:
+            new_item['price'] = price
+        else:
+            new_item['price'] = 0
         new_item['year_sold'] = year_sold_clean
         new_item['status'] = 'Verkocht'
         yield new_item
 
 
 if __name__ == '__main__':
-    start_spider('zwolle')
+    main(sys.argv[1:])
