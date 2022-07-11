@@ -9,14 +9,26 @@ class FundaPipeline(object):
     """
 
     def __init__(self):
-        self.hostname = os.getenv("DB_HOST", config("DB_HOST"))
-        self.username = os.getenv("DB_USERNAME", config("DB_USERNAME"))
-        self.password = os.getenv("DB_PASSWORD", config("DB_PASSWORD"))
-        self.database = os.getenv("DB_DATABASE", config("DB_DATABASE"))
-        self.connection = psycopg2.connect(host=self.hostname,
-                                           user=self.username,
-                                           password=self.password,
-                                           dbname=self.database)
+        if os.getenv("SAVE_TO_DIGITAL_OCEAN_DB", config("SAVE_TO_DIGITAL_OCEAN_DB")) == 'True':
+            self.hostname = os.getenv("DB_DIGITAL_OCEAN_HOST", config("DB_DIGITAL_OCEAN_HOST"))
+            self.username = os.getenv("DB_DIGITAL_OCEAN_USERNAME", config("DB_DIGITAL_OCEAN_USERNAME"))
+            self.password = os.getenv("DB_DIGITAL_OCEAN_PASSWORD", config("DB_DIGITAL_OCEAN_PASSWORD"))
+            self.database = os.getenv("DB_DIGITAL_OCEAN_NAME", config("DB_DIGITAL_OCEAN_NAME"))
+            self.port = os.getenv("DB_DIGITAL_OCEAN_PORT", config("DB_DIGITAL_OCEAN_PORT"))
+            self.connection = psycopg2.connect(host=self.hostname,
+                                               user=self.username,
+                                               password=self.password,
+                                               dbname=self.database,
+                                               port=self.port)
+        else:
+            self.hostname = os.getenv("DB_HOST", config("DB_HOST"))
+            self.username = os.getenv("DB_USERNAME", config("DB_USERNAME"))
+            self.password = os.getenv("DB_PASSWORD", config("DB_PASSWORD"))
+            self.database = os.getenv("DB_DATABASE", config("DB_DATABASE"))
+            self.connection = psycopg2.connect(host=self.hostname,
+                                               user=self.username,
+                                               password=self.password,
+                                               dbname=self.database)
         self.cur = self.connection.cursor()
 
     def close_spider(self, spider):

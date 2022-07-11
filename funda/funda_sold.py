@@ -73,6 +73,8 @@ class FundaSpiderSold(scrapy.Spider):
         street = re.search('[a-zA-Z]+', address).group(0)
         housenumber = re.search(r'\d+', address).group(0)
         housenumber_add = re.search(r'\d[a-zA-Z]+', address)
+        if housenumber_add and len(housenumber_add.group(0)) > 15:
+            housenumber_add = 'to long'
         try:
             postal_code = re.search(r'\d{4} [A-Z]{2}', title).group(0)
         except AttributeError as e:
@@ -82,8 +84,7 @@ class FundaSpiderSold(scrapy.Spider):
         area_dd = response.xpath("//span[contains(@title, 'wonen')]/following-sibling::span[1]/text()").extract()[0]
         area = re.findall(r'\d+', area_dd)[0]
         try:
-            plot_size_dd = \
-            response.xpath("//span[contains(@title, 'perceel')]/following-sibling::span[1]/text()").extract()[0]
+            plot_size_dd = response.xpath("//span[contains(@title, 'perceel')]/following-sibling::span[1]/text()").extract()[0]
             plot_size = re.search(r'\d+', plot_size_dd).group(0)
         except IndexError as e:
             plot_size = ''
