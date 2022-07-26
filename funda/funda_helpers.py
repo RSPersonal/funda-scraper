@@ -52,7 +52,3 @@ def transform_date_to_database_date_format(dirty_date_input: str):
     days_clean = append_zero_to_single_digit_days_in_date(splitted_dirty_date[0])
     clean_date.append(days_clean)
     return f"{clean_date[0]}-{clean_date[1]}-{clean_date[2]}"
-
-
-if __name__ == '__main__':
-    print(transform_date_to_database_date_format("15 mei 2022"))

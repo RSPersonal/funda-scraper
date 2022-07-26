@@ -2,6 +2,7 @@ import re
 import sys
 import getopt
 import scrapy
+import sentry_sdk
 from scrapy.linkextractors import LinkExtractor
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
@@ -78,7 +79,7 @@ class FundaSpiderSold(scrapy.Spider):
         try:
             postal_code = re.search(r'\d{4} [A-Z]{2}', title).group(0)
         except AttributeError as e:
-            print("\n Property has no postal code, probably newly built and has no postal code yed")
+            print(e, "\n Property has no postal code, probably newly built and has no postal code yed")
             pass
         city = re.search(r'\d{4} [A-Z]{2} \w+', title).group(0).split()[2]
         area_dd = response.xpath("//span[contains(@title, 'wonen')]/following-sibling::span[1]/text()").extract()[0]
@@ -88,6 +89,7 @@ class FundaSpiderSold(scrapy.Spider):
             plot_size = re.search(r'\d+', plot_size_dd).group(0)
         except IndexError as e:
             plot_size = ''
+            sentry_sdk.capture_exception(e)
             pass
         price_dd = response.xpath('.//strong[@class="object-header__price--historic"]/text()').extract()[0]
         price = ''.join(re.findall(r'\d+', price_dd)).replace('.', '')
