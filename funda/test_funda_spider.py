@@ -33,6 +33,10 @@ class TestGetMonthInDigit(unittest.TestCase):
         case_with_dash_street = re.search('[a-zA-Z-.]+', case_with_dash_address).group(0)
         self.assertEqual(case_with_dash_street, 'Jan-Boutensstraat')
 
+        case_with_2_dash = 'Verkocht: Aa-park 14 1321 VX Almere'
+        case_with_dash_2_address = re.findall(r'Verkocht: (.*) \d{4}', case_with_2_dash)[0].replace(' ', '')
+        case_with_dash_2_street = re.search('[a-zA-Z-.]+', case_with_dash_2_address).group(0)
+        self.assertEqual(case_with_dash_2_street, 'Aa-park')
 
 if __name__ == '__main__':
     unittest.main()
