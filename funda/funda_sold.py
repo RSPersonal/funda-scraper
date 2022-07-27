@@ -71,7 +71,7 @@ class FundaSpiderSold(scrapy.Spider):
         new_item = response.meta['item']
         title = response.xpath('//title/text()').extract()[0]
         address = re.findall(r'Verkocht: (.*) \d{4}', title)[0].replace(' ', '')
-        street = re.search('[a-zA-Z]+', address).group(0)
+        street = re.search('[a-zA-Z.]+', address).group(0)
         housenumber = re.search(r'\d+', address).group(0)
         housenumber_add = re.search(r'\d[a-zA-Z]+', address)
         if housenumber_add and len(housenumber_add.group(0)) > 15:
