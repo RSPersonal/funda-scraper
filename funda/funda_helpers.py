@@ -1,5 +1,3 @@
-import re
-
 MONTHS = {
     "januari": "01",
     "februari": "02",

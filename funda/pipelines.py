@@ -62,7 +62,7 @@ class FundaPipeline(object):
         return exists_in_db
 
     def process_item(self, item, spider):
-        """ First check if scraped property already exists in Database, othwise add it to database.
+        """ First check if scraped property already exists in Database, otherwise add it to database.
         Returns item after processing.
         @param item:
         @param spider:
