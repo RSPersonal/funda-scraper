@@ -1,6 +1,7 @@
 import unittest
 import re
-from core.core_scripts. import transform_month_in_digit_string, transform_date_to_database_date_format
+from .funda_helpers import transform_month_in_digit_string, transform_date_to_database_date_format, \
+    append_zero_to_single_digit_days_in_date
 
 
 class TestGetMonthInDigit(unittest.TestCase):
@@ -37,6 +38,9 @@ class TestGetMonthInDigit(unittest.TestCase):
         case_with_dash_2_address = re.findall(r'Verkocht: (.*) \d{4}', case_with_2_dash)[0].replace(' ', '')
         case_with_dash_2_street = re.search('[a-zA-Z-.]+', case_with_dash_2_address).group(0)
         self.assertEqual(case_with_dash_2_street, 'Aa-park')
+
+    def test_append_zero(self):
+        self.assertEqual(append_zero_to_single_digit_days_in_date("1"), "01")
 
 
 if __name__ == '__main__':
